@@ -8,20 +8,27 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.view.Gravity;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity  {
+public class MainActivity extends AppCompatActivity {
 
     public String mystery_word;
     public String guess_word;
-    int gallows_state;
-    String[] words = getResources().getStringArray(R.array.words);
+    int gallows_state = 0;
+    int index;
+    String[] words;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        words = getResources().getStringArray(R.array.words);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -31,11 +38,11 @@ public class MainActivity extends AppCompatActivity  {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Czy wylosowac nowe slowo?", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Czy losować nowe słowo?", Snackbar.LENGTH_LONG)
                         .setAction("Tak", new View.OnClickListener()
                         {
                             @Override
-                            public void onClick(View view)
+                            public void onClick (View view)
                             {
                                 int number = (int)(words.length * Math.random());
                                 mystery_word = words[number];
@@ -67,6 +74,152 @@ public class MainActivity extends AppCompatActivity  {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void myClickHandler(View view)
+    {
+        switch(view.getId())
+        {
+            case R.id.button:
+                LetterCheck();
+                break;
+
+            case R.id.button2:
+                WordCheck();
+                break;
+            default:
+        }
+    }
+
+    public void LetterCheck()
+    {
+        EditText txt = (EditText)findViewById(R.id.editext);
+        guess_word = txt.getText().toString();
+
+        char[] guess_word_array = guess_word.toCharArray();
+        char guess_char = guess_word_array[0]; // jezeli wpiszemy wiecej niż jedną literę, to klikając sprawdź literę, sprawdzimy wystąpienia pierwszej z wporwadzonych liter
+
+        if(!guess_word.isEmpty())
+        {
+            if(mystery_word.contains(guess_word))
+            {
+
+                index = mystery_word.indexOf(guess_word,0);
+                StringBuilder temp = new StringBuilder(guess_word);
+                temp.setCharAt(index,guess_char);
+
+                // tu zostało zrobić warunek że zgadlismy wszystkie literki
+            }
+            else
+            {
+                gallows_state = gallows_state + 1;
+                NegativeMessage();
+                HangmanImage();
+            }
+        }
+        else
+        {
+            ErrorMessage();
+        }
+
+
+    }
+
+    public void WordCheck()
+    {
+        EditText txt = (EditText)findViewById(R.id.editext);
+        guess_word = txt.getText().toString();
+
+        Boolean game_check =  mystery_word.equals(guess_word);
+
+        if(game_check == true)
+        {
+            PositiveMessage();
+            NewGameMessage();
+        }
+        else
+        {
+            gallows_state = gallows_state + 1;
+
+            NegativeMessage();
+            HangmanImage();
+        }
+    }
+    public void HangmanImage()
+    {
+        ImageView gallows = (ImageView)findViewById(R.id.hangman);
+        switch(gallows_state)
+        {
+            case 0:
+                gallows.setImageResource(R.drawable.hangman0);
+                break;
+
+            case 1:
+                gallows.setImageResource(R.drawable.hangman1);
+                break;
+            case 2:
+                gallows.setImageResource(R.drawable.hangman2);
+                break;
+
+            case 3:
+                gallows.setImageResource(R.drawable.hangman3);
+                break;
+
+            case 4:
+                gallows.setImageResource(R.drawable.hangman4);
+                break;
+            case 5:
+                gallows.setImageResource(R.drawable.hangman5);
+                break;
+            case 6:
+                gallows.setImageResource(R.drawable.hangman6);
+                break;
+
+            case 7:
+                gallows.setImageResource(R.drawable.hangman7);
+                break;
+            case 8:
+                gallows.setImageResource(R.drawable.hangman8);
+                break;
+            case 9:
+                gallows.setImageResource(R.drawable.hangman9);
+                break;
+
+            case 10:
+                gallows.setImageResource(R.drawable.hangman10);
+                break;
+            default:
+        }
+    }
+
+    public void NegativeMessage()
+    {
+        Toast toast = Toast.makeText(getApplicationContext(),"Nie udało się :(",Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER_VERTICAL|Gravity.CENTER,0,0);
+        toast.show();
+    }
+
+    public void PositiveMessage()
+    {
+        Toast toast = Toast.makeText(getApplicationContext(),"Gratulacje, odgadłeś słowo !",Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER_VERTICAL|Gravity.CENTER,0,0);
+        toast.show();
+    }
+
+    public void ErrorMessage()
+    {
+        Toast toast = Toast.makeText(getApplicationContext(),"Wprowadź swoją literę do pola tekstowego!",Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER_VERTICAL|Gravity.CENTER,0,0);
+        toast.show();
+    }
+    public void NewGameMessage()
+    {
+        Toast toast = Toast.makeText(getApplicationContext(),"Aby rozpocząć nową grę, kliknij klawisz ze znakiem zapytania :)",Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER_VERTICAL|Gravity.CENTER,0,0);
+        toast.show();
+    }
+
+
+
 
 
 }
